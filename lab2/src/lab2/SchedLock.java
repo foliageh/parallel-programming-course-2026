@@ -5,17 +5,25 @@ package lab2;
  * Лог: "lock <имя>", "unlock <имя>". Планировщик должен знать все локи, чтобы печатать held={a:A, b:B}. */
 public final class SchedLock {
     final String name;
+    int owner = -1;
 
     /** Создаётся в setup() тестовой программы; зарегистрируйте лок в планировщике s. */
-    public SchedLock(Scheduler s, String name) { this.name = name; }
+    public SchedLock(Scheduler s, String name) {
+        this.name = name;
+        s.locks.add(this);
+    }
 
     /** Пауза; если лок занят — ждать, не участвуя в выборе; затем стать владельцем. */
     public void lock() {
-        throw new UnsupportedOperationException("TODO этап 2: SchedLock.lock");
+        Scheduler.Worker w = Scheduler.beforeOp(() -> owner < 0);
+        owner = w.id;
+        w.s.log(w, "lock " + name);
     }
 
     /** Пауза; освободить лок, ждавшие потоки снова могут быть выбраны. */
     public void unlock() {
-        throw new UnsupportedOperationException("TODO этап 2: SchedLock.unlock");
+        Scheduler.Worker w = Scheduler.beforeOp(null);
+        owner = -1;
+        w.s.log(w, "unlock " + name);
     }
 }
